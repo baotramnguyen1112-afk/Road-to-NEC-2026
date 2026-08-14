@@ -1,4 +1,5 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Road to NEC 2026 · English Excellence Portal</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><!-- Road to NEC 2026 v6.3 Gemini + Teacher Review Fix -->
+<title>Road to NEC 2026 · English Excellence Portal</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 
 :root{
@@ -348,6 +349,14 @@ tbody tr:hover{background:#fbfdff}
     </div>
     <div id="writingStatus" class="notice" style="margin-top:18px"><b>✍️ Writing tasks:</b> loading…</div>
     <div class="writing-grid" id="writingGrid"></div>
+    <div class="writing-admin" style="margin-top:22px;background:linear-gradient(145deg,#fff,#f5f8ff)">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <div style="margin-right:auto"><div class="eyebrow">Teacher Feedback</div><h3 style="margin:2px 0;color:var(--navy)">📬 My Returned Writing</h3></div>
+        <button class="btn secondary" onclick="checkTeacherWritingFeedback()">Check teacher feedback</button>
+      </div>
+      <p class="muted">After your teacher reviews a submitted attempt, the score and comments will appear here on the device you used to submit it.</p>
+      <div id="studentWritingFeedbackBox" class="notice">No returned feedback checked yet.</div>
+    </div>
   </div>
 </section>
 
@@ -439,7 +448,17 @@ tbody tr:hover{background:#fbfdff}
           <div class="setup-actions"><button class="btn primary" onclick="saveWritingTask()">Publish writing task</button><button class="btn secondary" onclick="clearWritingTaskForm()">Clear form</button></div>
           <div id="writingManagerMessage" class="notice hidden" style="margin-top:12px"></div>
           <div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>Title</th><th>Category</th><th>Time</th><th>Difficulty</th><th>Status</th><th>Actions</th></tr></thead><tbody id="teacherWritingTasksBody"></tbody></table></div>
-          <div id="writingAttemptsBox" class="hidden" style="margin-top:16px"><h3 style="color:var(--navy)">Writing attempts</h3><div class="tablewrap"><table><thead><tr><th>Student</th><th>Class</th><th>Task</th><th>Category</th><th>Attempt</th><th>Words</th><th>Time</th><th>Submitted</th></tr></thead><tbody id="writingAttemptsBody"></tbody></table></div></div>
+          <div id="writingAttemptsBox" class="hidden" style="margin-top:16px"><h3 style="color:var(--navy)">Writing attempts</h3><div class="tablewrap"><table><thead><tr><th>Student</th><th>Class</th><th>Task</th><th>Category</th><th>Attempts</th><th>Words</th><th>Status</th><th>Score</th><th>Submitted</th><th>Action</th></tr></thead><tbody id="writingAttemptsBody"></tbody></table></div>
+            <div id="writingReviewPanel" class="hidden" style="margin-top:16px;padding:18px;border:1px solid var(--line);border-radius:16px;background:#f8fbff">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div style="margin-right:auto"><div class="eyebrow">Teacher Review</div><h3 id="reviewStudentTitle" style="margin:2px 0;color:var(--navy)">Review submission</h3></div><button class="btn secondary" onclick="closeWritingReview()">Close review</button></div>
+              <div class="configgrid" style="margin-top:12px"><div><b>Task</b><div id="reviewTaskTitle" class="muted"></div></div><div><b>Submitted</b><div id="reviewSubmittedAt" class="muted"></div></div></div>
+              <label style="display:block;margin-top:12px"><b>Student response</b></label><div id="reviewResponseText" style="white-space:pre-wrap;max-height:360px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;line-height:1.65"></div>
+              <div id="reviewCriteriaBox" class="configgrid" style="margin-top:14px"></div>
+              <div style="margin-top:12px"><label><b>Teacher feedback</b></label><textarea id="reviewTeacherFeedback" placeholder="Write clear, actionable feedback for the student…" style="min-height:150px"></textarea></div>
+              <div class="setup-actions"><span class="editor-stat" id="reviewTotalScore">0.00 / 0.00</span><button class="btn primary" onclick="returnWritingReviewToStudent()">✅ Return score & feedback to student</button></div>
+              <div id="reviewSaveMessage" class="notice hidden" style="margin-top:12px"></div>
+            </div>
+          </div>
         </div>
 
         <div id="resourceManager" style="margin:22px 0;padding:18px;border:1px solid #d9e2ec;border-radius:17px;background:#fff">
@@ -492,6 +511,7 @@ tbody tr:hover{background:#fbfdff}
         <textarea id="writingResponse" placeholder="Write your response here…" oninput="writingInputChanged()"></textarea>
         <div class="setup-actions"><button class="btn secondary" onclick="saveWritingDraft(true)">💾 Save draft</button><button class="btn secondary" onclick="newWritingAttempt()">↻ Start new attempt</button><button class="btn red" onclick="submitWritingAttempt()">Submit writing</button></div>
         <div id="writingSubmitMessage" class="notice hidden" style="margin-top:12px"></div>
+        <div class="setup-actions"><button class="btn secondary" onclick="checkTeacherWritingFeedback()">📬 Check teacher feedback</button></div>
         <div class="ai-panel" id="writingAIBox">
           <h3 style="color:var(--navy);margin-top:0">✨ AI Writing Coach</h3>
           <p class="muted">AI feedback becomes available after you submit. The score is formative and advisory, not an official NEC grade.</p>
@@ -610,6 +630,9 @@ const DEMO_WRITING_TASKS=[
 ];
 let writingTasks=[],currentWritingTask=null,writingTimerHandle=null,writingSecondsLeft=0,writingStartedAt=null,writingSubmitted=false,editingWritingTaskId=null;
 const WGEM='NEC_GEMINI_API_KEY';
+const WRECEIPTS='NEC_WRITING_SUBMISSION_RECEIPTS';
+function getWritingReceipts(){try{const a=JSON.parse(localStorage.getItem(WRECEIPTS)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+function saveWritingReceipt(r){const a=getWritingReceipts().filter(x=>x.client_submission_id!==r.client_submission_id);a.unshift(r);localStorage.setItem(WRECEIPTS,JSON.stringify(a.slice(0,100)))}
 function writingEsc(s){return escHtml(String(s??''))}
 function writingDraftKey(){const st=getStudent();return 'NEC_WRITING_DRAFT_'+(currentWritingTask?.id||'x')+'_'+(st.name||'student')+'_'+(st.cls||'class')}
 async function loadWritingTasks(){const grid=document.getElementById('writingGrid'),st=document.getElementById('writingStatus');if(!grid||!st)return;let rows=[];if(configured()){try{rows=await rpc('list_nec_writing_tasks',{p_join_code:getCloud().join})||[]}catch(e){console.warn('Writing tasks cloud unavailable',e)}}writingTasks=rows.length?rows:DEMO_WRITING_TASKS;st.className='notice '+(rows.length?'oknotice':'');st.innerHTML=rows.length?'<b>✍️ Writing tasks:</b> '+rows.length+' published task'+(rows.length===1?'':'s')+'.':'<b>✍️ Writing preview:</b> Two editable demo slots are shown. Publish your real prompts from Teacher Dashboard.';grid.innerHTML=writingTasks.map(t=>`<div class="writing-card ${t.is_demo?'pending':''}"><div class="wtop"><div class="wicon">${t.category==='Data Description'?'📊':'💬'}</div><span class="badge">${writingEsc(t.category)}</span></div><div class="wmeta">${Number(t.time_limit_minutes)||40} minutes · ${writingEsc(t.difficulty||'NEC')}</div><h3>${writingEsc(t.title)}</h3><p>${writingEsc((t.prompt||'').slice(0,150))}${(t.prompt||'').length>150?'…':''}</p><div class="wstats"><span>⏱ ${Number(t.time_limit_minutes)||40} min</span><span>📝 ${writingEsc(t.word_guidance||'Open word count')}</span><span>↻ Multiple attempts</span></div><button class="btn ${t.category==='Data Description'?'primary':'red'}" onclick='openWritingTask(${JSON.stringify(String(t.id))})'>✍️ Start writing</button></div>`).join('')}
@@ -623,7 +646,22 @@ function writingInputChanged(){const txt=document.getElementById('writingRespons
 function saveWritingDraft(show=false){if(!currentWritingTask)return;const d={plan:writingPlan.value,response:writingResponse.value,saved_at:new Date().toISOString()};localStorage.setItem(writingDraftKey(),JSON.stringify(d));document.getElementById('writingSaveState').textContent='Saved '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});if(show){const m=document.getElementById('writingSubmitMessage');m.className='notice oknotice';m.textContent='Draft saved on this device.';m.classList.remove('hidden')}}
 function newWritingAttempt(){if(!currentWritingTask||!confirm('Start a new attempt? Your current draft will be cleared from this device.'))return;localStorage.removeItem(writingDraftKey());writingPlan.value='';writingResponse.value='';writingSubmitted=false;document.getElementById('aiFeedbackBtn').disabled=true;writingInputChanged();startWritingTimer()}
 function makeUuid(){return crypto?.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==='x'?r:(r&3|8);return v.toString(16)})}
-async function submitWritingAttempt(){if(!currentWritingTask)return;const st=getStudent(),text=writingResponse.value.trim(),msg=document.getElementById('writingSubmitMessage');if(currentWritingTask.is_demo){msg.className='notice badnotice';msg.textContent='This is a preview slot. Ask your teacher to publish the real prompt before submitting.';msg.classList.remove('hidden');return}if(text.split(/\s+/).filter(Boolean).length<30){msg.className='notice badnotice';msg.textContent='Your response is too short to submit. Keep writing before you finish the attempt.';msg.classList.remove('hidden');return}const elapsed=Math.max(0,Math.round((Date.now()-writingStartedAt)/1000));const wc=text.split(/\s+/).length;try{if(configured())await rpc('submit_nec_writing_attempt',{p_join_code:getCloud().join,p_task_id:Number(currentWritingTask.id),p_student_name:st.name,p_student_class:st.cls,p_response_text:text,p_word_count:wc,p_elapsed_seconds:elapsed,p_client_submission_id:makeUuid()});writingSubmitted=true;if(writingTimerHandle)clearInterval(writingTimerHandle);msg.className='notice oknotice';msg.textContent='✅ Writing submitted. Your attempt has been recorded. You can now request AI feedback or start another attempt.';msg.classList.remove('hidden');document.getElementById('aiFeedbackBtn').disabled=false;saveWritingDraft()}catch(e){msg.className='notice badnotice';msg.textContent='Could not submit to the cloud: '+e.message;msg.classList.remove('hidden')}}
+async function submitWritingAttempt(){
+  if(!currentWritingTask)return;
+  const st=getStudent(),text=writingResponse.value.trim(),msg=document.getElementById('writingSubmitMessage');
+  if(currentWritingTask.is_demo){msg.className='notice badnotice';msg.textContent='This is a preview slot. Ask your teacher to publish the real prompt before submitting.';msg.classList.remove('hidden');return}
+  const words=text.split(/\s+/).filter(Boolean);
+  if(words.length<30){msg.className='notice badnotice';msg.textContent='Your response is too short to submit. Keep writing before you finish the attempt.';msg.classList.remove('hidden');return}
+  const elapsed=Math.max(0,Math.round((Date.now()-writingStartedAt)/1000)),wc=words.length,receiptId=makeUuid();
+  try{
+    if(!configured())throw new Error('Cloud connection is required so your teacher can receive the writing.');
+    const result=await rpc('submit_nec_writing_attempt',{p_join_code:getCloud().join,p_task_id:Number(currentWritingTask.id),p_student_name:st.name,p_student_class:st.cls,p_response_text:text,p_word_count:wc,p_elapsed_seconds:elapsed,p_client_submission_id:receiptId});
+    saveWritingReceipt({client_submission_id:receiptId,submission_id:result?.submission_id||null,task_id:Number(currentWritingTask.id),task_title:currentWritingTask.title,category:currentWritingTask.category,student_name:st.name,student_class:st.cls,submitted_at:new Date().toISOString()});
+    writingSubmitted=true;if(writingTimerHandle)clearInterval(writingTimerHandle);
+    msg.className='notice oknotice';msg.textContent='✅ Writing submitted to your teacher. Your teacher can now review, score and return feedback. You may also request optional AI feedback.';msg.classList.remove('hidden');
+    document.getElementById('aiFeedbackBtn').disabled=false;saveWritingDraft();
+  }catch(e){msg.className='notice badnotice';msg.textContent='Could not submit to the cloud: '+e.message;msg.classList.remove('hidden')}
+}
 function saveGeminiKey(){const k=document.getElementById('geminiKey').value.trim();if(!k){localStorage.removeItem(WGEM);alert('Gemini API key removed from this browser.');return}localStorage.setItem(WGEM,k);alert('Gemini API key saved on this device only.')}
 function openAIKeyHelp(){alert('Gemini API key setup:\n\n1. Open Google AI Studio: https://aistudio.google.com/apikey\n2. Sign in with your Google account.\n3. Create or copy a Gemini API key.\n4. Return to Writing Studio and paste it into the AI Writing Coach box.\n\nNever share your key with classmates or publish it on GitHub.')}
 async function requestAIFeedback(){
@@ -677,20 +715,13 @@ Return feedback in ENGLISH using exactly these sections:
 7) ONE-WEEK PRACTICE: a short targeted plan based on this response.
 Do not rewrite the entire response. Do not invent facts or data absent from the task materials. For Data Description, verify numerical claims against any supplied task image and penalise inaccurate data reporting under Task Achievement.`;
   try{
-    const input=[];
-    if(task.image_url){
-      try{
-        const ir=await fetch(task.image_url);const blob=await ir.blob();
-        if(blob.type.startsWith('image/')){
-          const b64=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(String(fr.result).split(',')[1]);fr.onerror=reject;fr.readAsDataURL(blob)});
-          input.push({type:'image',mime_type:blob.type,data:b64});
-        }
-      }catch(imgErr){console.warn('Could not attach writing task image to Gemini',imgErr)}
-    }
-    input.push({type:'text',text:prompt});
-    const r=await fetch('https://generativelanguage.googleapis.com/v1/interactions',{
-      method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},
-      body:JSON.stringify({model:'gemini-3.6-flash',input})
+    // Latest Interactions API accepts a plain string for text input. This is the most
+    // stable browser-side schema and avoids legacy input-part incompatibilities.
+    const visualNote=task.image_url?`\n\nTASK VISUAL REFERENCE URL: ${task.image_url}\nIf the numerical information is also present in the task prompt, use the prompt as the source of truth.`:'';
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/interactions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-goog-api-key':key},
+      body:JSON.stringify({model:'gemini-3.6-flash',input:prompt+visualNote})
     });
     const data=await r.json();
     if(!r.ok)throw new Error(data?.error?.message||('HTTP '+r.status));
@@ -707,7 +738,66 @@ function clearWritingTaskForm(){editingWritingTaskId=null;wtTitle.value='';wtCat
 function editWritingTask(id){const t=teacherWritingTasks.find(x=>Number(x.id)===Number(id));if(!t)return;editingWritingTaskId=id;wtTitle.value=t.title||'';wtCategory.value=t.category||'Data Description';wtTime.value=t.time_limit_minutes||40;wtDifficulty.value=t.difficulty||'';wtPrompt.value=t.prompt||'';wtImage.value=t.image_url||'';wtWords.value=t.word_guidance||'';wtRubric.value=t.rubric||'';document.getElementById('writingManager').scrollIntoView({behavior:'smooth'})}
 async function saveWritingTask(){if(!activeTeacherCode){alert('Unlock the Teacher Dashboard first.');return}const msg=document.getElementById('writingManagerMessage');if(!wtTitle.value.trim()||!wtPrompt.value.trim()){msg.className='notice badnotice';msg.textContent='Title and task prompt are required.';msg.classList.remove('hidden');return}try{await rpc('upsert_nec_writing_task',{p_teacher_code:activeTeacherCode,p_task_id:editingWritingTaskId,p_title:wtTitle.value.trim(),p_category:wtCategory.value,p_time_limit_minutes:Number(wtTime.value)||40,p_word_guidance:wtWords.value.trim(),p_image_url:wtImage.value.trim(),p_difficulty:wtDifficulty.value.trim(),p_prompt:wtPrompt.value.trim(),p_rubric:wtRubric.value.trim(),p_is_active:true});msg.className='notice oknotice';msg.textContent=editingWritingTaskId?'Writing task updated.':'Writing task published.';msg.classList.remove('hidden');clearWritingTaskForm();await refreshTeacherWritingTasks();await loadWritingTasks()}catch(e){msg.className='notice badnotice';msg.textContent='Could not save writing task: '+e.message;msg.classList.remove('hidden')}}
 async function deleteWritingTask(id){if(!activeTeacherCode||!confirm('Delete this writing task? Existing student attempts will remain in the database.'))return;try{await rpc('delete_nec_writing_task',{p_teacher_code:activeTeacherCode,p_task_id:Number(id)});await refreshTeacherWritingTasks();await loadWritingTasks()}catch(e){alert('Could not delete writing task: '+e.message)}}
-async function refreshWritingSubmissions(){const box=document.getElementById('writingAttemptsBox'),body=document.getElementById('writingAttemptsBody');if(!activeTeacherCode)return;box.classList.remove('hidden');try{const rows=await rpc('teacher_nec_writing_dashboard',{p_teacher_code:activeTeacherCode,p_limit:2000})||[];const counts={};rows.forEach(r=>{const k=(r.student_name||'')+'|'+(r.student_class||'')+'|'+r.task_id;counts[k]=(counts[k]||0)+1});body.innerHTML=rows.map(r=>{const k=(r.student_name||'')+'|'+(r.student_class||'')+'|'+r.task_id;return `<tr><td>${writingEsc(r.student_name)}</td><td>${writingEsc(r.student_class||'')}</td><td>${writingEsc(r.task_title)}</td><td>${writingEsc(r.category)}</td><td>${counts[k]}</td><td>${r.word_count||0}</td><td>${Math.round((r.elapsed_seconds||0)/60)} min</td><td>${new Date(r.submitted_at).toLocaleString()}</td></tr>`}).join('');if(!rows.length)body.innerHTML='<tr><td colspan="8">No writing attempts yet.</td></tr>'}catch(e){body.innerHTML='<tr><td colspan="8">Could not load writing attempts: '+writingEsc(e.message)+'</td></tr>'}}
+async function refreshWritingSubmissions(){
+  const box=document.getElementById('writingAttemptsBox'),body=document.getElementById('writingAttemptsBody');if(!activeTeacherCode)return;box.classList.remove('hidden');
+  try{
+    teacherWritingSubmissions=await rpc('teacher_nec_writing_dashboard',{p_teacher_code:activeTeacherCode,p_limit:2000})||[];
+    const counts={};teacherWritingSubmissions.forEach(r=>{const k=(r.student_name||'')+'|'+(r.student_class||'')+'|'+r.task_id;counts[k]=(counts[k]||0)+1});
+    body.innerHTML=teacherWritingSubmissions.map(r=>{const k=(r.student_name||'')+'|'+(r.student_class||'')+'|'+r.task_id,returned=r.review_status==='returned';return `<tr><td>${writingEsc(r.student_name)}</td><td>${writingEsc(r.student_class||'')}</td><td>${writingEsc(r.task_title)}</td><td>${writingEsc(r.category)}</td><td>${counts[k]}</td><td>${r.word_count||0}</td><td>${returned?'✅ Returned':'⏳ Submitted'}</td><td>${returned?(Number(r.teacher_score||0).toFixed(2)+' / '+Number(r.teacher_max_score||0).toFixed(2)):'—'}</td><td>${new Date(r.submitted_at).toLocaleString()}</td><td><button class="btn secondary" style="padding:6px 9px" onclick="openWritingReview(${Number(r.submission_id)})">${returned?'Edit review':'Review'}</button></td></tr>`}).join('');
+    if(!teacherWritingSubmissions.length)body.innerHTML='<tr><td colspan="10">No writing attempts yet.</td></tr>';
+  }catch(e){body.innerHTML='<tr><td colspan="10">Could not load writing attempts: '+writingEsc(e.message)+'</td></tr>'}
+}
+
+
+async function checkTeacherWritingFeedback(){
+  const box=document.getElementById('studentWritingFeedbackBox');
+  if(!box){return}
+  if(!configured()){box.className='notice badnotice';box.textContent='Cloud connection is required to check teacher feedback.';return}
+  const receipts=getWritingReceipts();
+  if(!receipts.length){box.className='notice';box.textContent='No writing submissions from this browser yet.';return}
+  box.className='notice';box.textContent='Checking returned feedback…';
+  const cards=[];
+  for(const rec of receipts.slice(0,30)){
+    try{
+      const rows=await rpc('student_nec_writing_feedback',{p_join_code:getCloud().join,p_client_submission_id:rec.client_submission_id});
+      const r=Array.isArray(rows)?rows[0]:rows;
+      if(!r)continue;
+      let criteria='';
+      const cs=r.teacher_criterion_scores||{};
+      if(cs&&typeof cs==='object'&&Object.keys(cs).length){criteria='<div style="margin-top:7px">'+Object.entries(cs).map(([k,v])=>`<span class="editor-stat" style="display:inline-block;margin:3px">${writingEsc(k)}: ${Number(v).toFixed(2)}</span>`).join('')+'</div>'}
+      const returned=r.review_status==='returned';
+      cards.push(`<div style="margin:10px 0;padding:14px;background:#fff;border:1px solid var(--line);border-radius:13px"><b>${writingEsc(r.task_title||rec.task_title)}</b><div class="muted">Submitted ${new Date(r.submitted_at).toLocaleString()}</div>${returned?`<div style="margin-top:8px"><span class="badge">✅ Returned</span> <b style="color:var(--navy)">${Number(r.teacher_score||0).toFixed(2)} / ${Number(r.teacher_max_score||0).toFixed(2)}</b></div>${criteria}<div style="white-space:pre-wrap;margin-top:10px;line-height:1.6">${writingEsc(r.teacher_feedback||'No written comment.')}</div><div class="muted" style="margin-top:7px">Reviewed ${r.reviewed_at?new Date(r.reviewed_at).toLocaleString():''}</div>`:`<div style="margin-top:8px"><span class="badge">⏳ Awaiting teacher review</span></div>`}</div>`)
+    }catch(e){console.warn('Feedback lookup failed',e)}
+  }
+  box.className='notice '+(cards.length?'oknotice':'');box.innerHTML=cards.length?cards.join(''):'No matching submissions were found.';
+}
+
+let teacherWritingSubmissions=[],currentReviewSubmission=null;
+function closeWritingReview(){document.getElementById('writingReviewPanel')?.classList.add('hidden');currentReviewSubmission=null}
+function reviewRubricFor(row){
+  const data=/data description/i.test(row.category||'');
+  return data?{max:2,per:.5,criteria:['Task Achievement','Coherence & Cohesion','Lexical Resource','Grammar Range & Accuracy']}:{max:3,per:.75,criteria:['Task Response','Coherence & Cohesion','Lexical Resource','Grammatical Range & Accuracy']};
+}
+function openWritingReview(id){
+  const r=teacherWritingSubmissions.find(x=>Number(x.submission_id)===Number(id));if(!r)return;currentReviewSubmission=r;
+  const rub=reviewRubricFor(r),panel=document.getElementById('writingReviewPanel');panel.classList.remove('hidden');
+  document.getElementById('reviewStudentTitle').textContent=`${r.student_name} · ${r.student_class||''}`;
+  document.getElementById('reviewTaskTitle').textContent=`${r.task_title} · ${r.category}`;
+  document.getElementById('reviewSubmittedAt').textContent=new Date(r.submitted_at).toLocaleString();
+  document.getElementById('reviewResponseText').textContent=r.response_text||'';
+  const saved=r.teacher_criterion_scores||{};
+  document.getElementById('reviewCriteriaBox').innerHTML=rub.criteria.map((c,i)=>`<div><label><b>${writingEsc(c)}</b> <span class="muted">/ ${rub.per.toFixed(2)}</span></label><input class="review-criterion" data-name="${writingEsc(c)}" type="number" min="0" max="${rub.per}" step="0.05" value="${saved[c]!==undefined?Number(saved[c]).toFixed(2):''}" oninput="updateReviewTotal()"></div>`).join('');
+  document.getElementById('reviewTeacherFeedback').value=r.teacher_feedback||'';document.getElementById('reviewSaveMessage').classList.add('hidden');updateReviewTotal();panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function updateReviewTotal(){if(!currentReviewSubmission)return;const rub=reviewRubricFor(currentReviewSubmission);let total=0;document.querySelectorAll('.review-criterion').forEach(e=>{let v=Number(e.value)||0;v=Math.max(0,Math.min(rub.per,v));total+=v});document.getElementById('reviewTotalScore').textContent=`${total.toFixed(2)} / ${rub.max.toFixed(2)}`}
+async function returnWritingReviewToStudent(){
+  if(!activeTeacherCode||!currentReviewSubmission)return;
+  const rub=reviewRubricFor(currentReviewSubmission),scores={};let total=0,valid=true;
+  document.querySelectorAll('.review-criterion').forEach(e=>{if(e.value==='')valid=false;let v=Number(e.value)||0;if(v<0||v>rub.per)valid=false;scores[e.dataset.name]=v;total+=v});
+  const msg=document.getElementById('reviewSaveMessage');msg.classList.remove('hidden');
+  if(!valid){msg.className='notice badnotice';msg.textContent=`Enter every criterion score between 0 and ${rub.per.toFixed(2)}.`;return}
+  try{await rpc('teacher_review_nec_writing_submission',{p_teacher_code:activeTeacherCode,p_submission_id:Number(currentReviewSubmission.submission_id),p_teacher_score:Number(total.toFixed(2)),p_teacher_max_score:rub.max,p_criterion_scores:scores,p_teacher_feedback:document.getElementById('reviewTeacherFeedback').value.trim()});msg.className='notice oknotice';msg.textContent='✅ Score and feedback returned to the student.';await refreshWritingSubmissions()}catch(e){msg.className='notice badnotice';msg.textContent='Could not return review: '+e.message}
+}
 
 renderTests();loadStudent();checkCloud();loadResources();loadWritingTasks();if(!configured())setTimeout(openCloudSetup,500);
 </script></body></html>
