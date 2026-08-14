@@ -626,7 +626,79 @@ function makeUuid(){return crypto?.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx
 async function submitWritingAttempt(){if(!currentWritingTask)return;const st=getStudent(),text=writingResponse.value.trim(),msg=document.getElementById('writingSubmitMessage');if(currentWritingTask.is_demo){msg.className='notice badnotice';msg.textContent='This is a preview slot. Ask your teacher to publish the real prompt before submitting.';msg.classList.remove('hidden');return}if(text.split(/\s+/).filter(Boolean).length<30){msg.className='notice badnotice';msg.textContent='Your response is too short to submit. Keep writing before you finish the attempt.';msg.classList.remove('hidden');return}const elapsed=Math.max(0,Math.round((Date.now()-writingStartedAt)/1000));const wc=text.split(/\s+/).length;try{if(configured())await rpc('submit_nec_writing_attempt',{p_join_code:getCloud().join,p_task_id:Number(currentWritingTask.id),p_student_name:st.name,p_student_class:st.cls,p_response_text:text,p_word_count:wc,p_elapsed_seconds:elapsed,p_client_submission_id:makeUuid()});writingSubmitted=true;if(writingTimerHandle)clearInterval(writingTimerHandle);msg.className='notice oknotice';msg.textContent='✅ Writing submitted. Your attempt has been recorded. You can now request AI feedback or start another attempt.';msg.classList.remove('hidden');document.getElementById('aiFeedbackBtn').disabled=false;saveWritingDraft()}catch(e){msg.className='notice badnotice';msg.textContent='Could not submit to the cloud: '+e.message;msg.classList.remove('hidden')}}
 function saveGeminiKey(){const k=document.getElementById('geminiKey').value.trim();if(!k){localStorage.removeItem(WGEM);alert('Gemini API key removed from this browser.');return}localStorage.setItem(WGEM,k);alert('Gemini API key saved on this device only.')}
 function openAIKeyHelp(){alert('Gemini API key setup:\n\n1. Open Google AI Studio: https://aistudio.google.com/apikey\n2. Sign in with your Google account.\n3. Create or copy a Gemini API key.\n4. Return to Writing Studio and paste it into the AI Writing Coach box.\n\nNever share your key with classmates or publish it on GitHub.')}
-async function requestAIFeedback(){if(!writingSubmitted){alert('Submit your writing first.');return}const key=(document.getElementById('geminiKey').value.trim()||localStorage.getItem(WGEM)||'');if(!key){openAIKeyHelp();return}const out=document.getElementById('aiFeedbackOutput'),st=document.getElementById('aiFeedbackStatus');st.className='notice';st.textContent='✨ Gemini is reviewing your writing…';st.classList.remove('hidden');out.classList.add('hidden');const task=currentWritingTask;const response=writingResponse.value.trim();const rubric=task.rubric|| (task.category==='Data Description'?'Task fulfilment; overview and selection; organisation; vocabulary; grammar and accuracy':'Content and argument; organisation and coherence; lexical resource; grammar and accuracy; style and register');const prompt=`You are an expert English writing coach for Vietnamese National Excellent Student (NEC) candidates at C1-C2/C2+ level.\n\nTASK CATEGORY: ${task.category}\nTASK TITLE: ${task.title}\nTIME LIMIT: ${task.time_limit_minutes} minutes\nWORD GUIDANCE: ${task.word_guidance||'Not specified'}\nTASK PROMPT:\n${task.prompt}\n\nSTUDENT RESPONSE:\n${response}\n\nPRACTICE RUBRIC:\n${rubric}\n\nGive feedback in ENGLISH. This is formative practice, not an official exam grade. Return:\n1) INDICATIVE SCORE: an overall score /10 plus five concise criterion scores /10.\n2) WHAT WORKED: 3 specific strengths with references to the student's writing.\n3) PRIORITY FIXES: the 3 most important weaknesses.\n4) SENTENCE CLINIC: quote up to 3 short problematic excerpts and provide improved versions with the rule/reason.\n5) VOCABULARY UPGRADE: 5 useful topic-appropriate words/collocations, but do not encourage unnatural over-complexity.\n6) NEXT ATTEMPT PLAN: exactly 3 actions for the student's next practice session.\n7) ONE-WEEK PRACTICE: a short focused plan based on this response.\nDo not rewrite the entire essay. Do not invent factual data that the prompt does not provide.`;try{const parts=[{text:prompt}];if(task.image_url){try{const ir=await fetch(task.image_url);const blob=await ir.blob();if(blob.type.startsWith('image/')){const b64=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(String(fr.result).split(',')[1]);fr.onerror=reject;fr.readAsDataURL(blob)});parts.unshift({inlineData:{mimeType:blob.type,data:b64}})}}catch(imgErr){console.warn('Could not attach writing task image to Gemini',imgErr)}}const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{role:'user',parts}],generationConfig:{temperature:.3,maxOutputTokens:2200}})});const data=await r.json();if(!r.ok)throw new Error(data?.error?.message||('HTTP '+r.status));const text=(data.candidates||[]).flatMap(c=>c.content?.parts||[]).map(p=>p.text||'').join('\n').trim();if(!text)throw new Error('Gemini returned no text.');out.textContent=text;out.classList.remove('hidden');st.className='notice oknotice';st.textContent='AI feedback ready. Treat it as a second opinion and revise critically.'}catch(e){st.className='notice badnotice';st.textContent='AI feedback failed: '+e.message+' Check your API key and internet connection.'}}
+async function requestAIFeedback(){
+  if(!writingSubmitted){alert('Submit your writing first.');return}
+  const key=(document.getElementById('geminiKey').value.trim()||localStorage.getItem(WGEM)||'');
+  if(!key){openAIKeyHelp();return}
+  const out=document.getElementById('aiFeedbackOutput'),st=document.getElementById('aiFeedbackStatus');
+  st.className='notice';st.textContent='✨ Gemini 3.6 Flash is reviewing your writing…';st.classList.remove('hidden');out.classList.add('hidden');
+  const task=currentWritingTask;const response=writingResponse.value.trim();
+  const isData=/data description/i.test(task.category||'');
+  const rubric=isData
+    ? `OFFICIAL PRACTICE RUBRIC — TOTAL 2.0 POINTS
+Task Achievement: 0.50 — Accurate overview; select, classify and compare key data; integrate both figures/sources; use projection language correctly.
+Coherence & Cohesion: 0.50 — Group information logically; maintain clear progression and cohesive links; avoid mechanical year-by-year listing.
+Lexical Resource: 0.50 — Use accurate C1–C2 data-description vocabulary and collocations; avoid repetition.
+Grammar Range & Accuracy: 0.50 — Use a varied range of complex structures naturally and maintain near-error-free accuracy.`
+    : `OFFICIAL PRACTICE RUBRIC — TOTAL 3.0 POINTS
+Task Response: 0.75 — Address all three views; maintain a clear, consistent and nuanced position; support evaluation with specific reasoning/examples.
+Coherence & Cohesion: 0.75 — One controlling idea per paragraph; coherent progression; effective referencing and lexical chains; avoid mechanical Firstly/Secondly sequencing.
+Lexical Resource: 0.75 — Paraphrase the topic effectively; use precise finance/behaviour lexis and natural C2-level collocations without forced sophistication.
+Grammatical Range & Accuracy: 0.75 — Use a wide, controlled range such as inversion, concessive inversion, reduced clauses, clefts and nominalisation where natural; maintain high accuracy.`;
+  const total=isData?'2.00':'3.00';
+  const per=isData?'0.50':'0.75';
+  const prompt=`You are an expert English writing assessor and coach for Vietnamese National Excellent Student (NEC) candidates at C1-C2/C2+ level.
+
+TASK CATEGORY: ${task.category}
+TASK TITLE: ${task.title}
+TIME LIMIT: ${task.time_limit_minutes} minutes
+WORD GUIDANCE: ${task.word_guidance||'Not specified'}
+TASK PROMPT:\n${task.prompt}
+
+STUDENT RESPONSE:\n${response}
+
+${rubric}
+
+IMPORTANT SCORING RULES:
+- Use ONLY the four criteria above.
+- Each criterion is scored from 0 to ${per}.
+- Overall score is the exact sum of the four criterion scores, maximum ${total}.
+- NEVER convert the score to /10, /9, percentages, IELTS bands, or another scale.
+- Give scores to TWO decimal places.
+- This is formative practice, not an official NEC grade.
+
+Return feedback in ENGLISH using exactly these sections:
+1) SCORE: overall score /${total}, followed by a four-row criterion breakdown with score and concise justification.
+2) WHAT WORKED: 3 specific strengths, quoting only short excerpts from the student's writing.
+3) PRIORITY FIXES: the 3 most important weaknesses, linked to the rubric.
+4) SENTENCE CLINIC: up to 3 short problematic excerpts, an improved version, and the grammar/style rule.
+5) VOCABULARY UPGRADE: 5 useful, natural topic-appropriate words/collocations.
+6) NEXT ATTEMPT PLAN: exactly 3 concrete actions.
+7) ONE-WEEK PRACTICE: a short targeted plan based on this response.
+Do not rewrite the entire response. Do not invent facts or data absent from the task materials. For Data Description, verify numerical claims against any supplied task image and penalise inaccurate data reporting under Task Achievement.`;
+  try{
+    const input=[];
+    if(task.image_url){
+      try{
+        const ir=await fetch(task.image_url);const blob=await ir.blob();
+        if(blob.type.startsWith('image/')){
+          const b64=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(String(fr.result).split(',')[1]);fr.onerror=reject;fr.readAsDataURL(blob)});
+          input.push({type:'image',mime_type:blob.type,data:b64});
+        }
+      }catch(imgErr){console.warn('Could not attach writing task image to Gemini',imgErr)}
+    }
+    input.push({type:'text',text:prompt});
+    const r=await fetch('https://generativelanguage.googleapis.com/v1/interactions',{
+      method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},
+      body:JSON.stringify({model:'gemini-3.6-flash',input})
+    });
+    const data=await r.json();
+    if(!r.ok)throw new Error(data?.error?.message||('HTTP '+r.status));
+    const text=(data.steps||[]).filter(step=>step.type==='model_output').flatMap(step=>step.content||[]).filter(block=>block.type==='text').map(block=>block.text||'').join('\n').trim();
+    if(!text)throw new Error('Gemini returned no text.');
+    out.textContent=text;out.classList.remove('hidden');st.className='notice oknotice';st.textContent=`AI feedback ready — scored on the ${total}-point task rubric. Treat it as a second opinion and revise critically.`;
+  }catch(e){st.className='notice badnotice';st.textContent='AI feedback failed: '+e.message+' Check your API key and internet connection.'}
+}
 
 /* Teacher writing manager */
 let teacherWritingTasks=[];
