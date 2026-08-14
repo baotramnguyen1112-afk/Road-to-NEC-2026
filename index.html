@@ -219,6 +219,21 @@ tbody tr:hover{background:#fbfdff}
 .footer .wrap{display:flex;gap:28px;justify-content:space-between;align-items:center}
 .footer .foot-brand{color:#fff;font-weight:800}.footer .foot-quote{max-width:600px;font-style:italic;color:#e8efff}
 
+
+/* WRITING STUDIO */
+.writing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:18px}
+.writing-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow2);position:relative;overflow:hidden;transition:.16s transform,.16s box-shadow}
+.writing-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.writing-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,var(--red),var(--gold),var(--blue))}
+.writing-card .wtop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.writing-card .wicon{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:1.45rem;background:var(--soft)}
+.writing-card .wmeta{font-size:.76rem;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:.06em}.writing-card h3{color:var(--navy);margin:10px 0 5px}.writing-card p{color:var(--slate);font-size:.92rem}.writing-card .wstats{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}.writing-card .wstats span{background:#f2f6fc;border:1px solid var(--line);padding:5px 9px;border-radius:999px;font-size:.75rem;font-weight:700;color:var(--slate)}
+.writing-card.pending{border-style:dashed}.writing-card.pending:after{content:"TEACHER EDITABLE";position:absolute;right:-38px;top:18px;transform:rotate(35deg);background:var(--gold);color:#4b3500;font-size:.62rem;font-weight:900;padding:5px 42px;letter-spacing:.06em}
+.writing-intro{display:grid;grid-template-columns:1.4fr .8fr;gap:18px;align-items:stretch}.ai-card{background:linear-gradient(145deg,#0b2f76,#174da9);color:#fff;border-radius:20px;padding:20px;box-shadow:var(--shadow)}.ai-card h3{margin:0 0 6px}.ai-card p{color:#dbe8ff;font-size:.9rem}.ai-card .btn{margin-top:8px}
+.writing-modal{width:min(1120px,100%);max-height:94vh}.writing-layout{display:grid;grid-template-columns:.92fr 1.18fr;gap:18px}.writing-prompt{background:#f5f8ff;border:1px solid var(--line);border-radius:16px;padding:18px;position:sticky;top:0;align-self:start}.writing-prompt h3{color:var(--navy);margin-top:0}.prompt-text{white-space:pre-wrap;font-size:.96rem;line-height:1.65}.writing-workspace textarea{width:100%;resize:vertical;min-height:110px}.writing-workspace #writingResponse{min-height:390px;line-height:1.65;font-size:1rem}.editor-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}.editor-stat{background:#eef4ff;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-weight:800;color:var(--navy);font-size:.82rem}.timer-chip{background:#fff0f1;color:#b61d32}.timer-chip.warn{background:#fff1d8;color:#9a5a00}.timer-chip.danger{background:#ffe1e4;color:#b0132a;animation:pulse 1s infinite}@keyframes pulse{50%{opacity:.6}}
+.ai-panel{margin-top:18px;background:#f8fbff;border:1px solid #dce7f6;border-radius:16px;padding:16px}.ai-output{white-space:pre-wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;line-height:1.55;max-height:420px;overflow:auto}.ai-key-row{display:grid;grid-template-columns:1fr auto;gap:9px}.ai-disclaimer{font-size:.78rem;color:var(--slate);margin-top:7px}
+.writing-admin{margin:22px 0;padding:18px;border:1px solid #d9e2ec;border-radius:17px;background:#fff}.writing-admin textarea{min-height:120px}
+@media(max-width:850px){.writing-intro,.writing-layout{grid-template-columns:1fr}.writing-prompt{position:static}.writing-workspace #writingResponse{min-height:320px}}
+
 /* RESPONSIVE */
 @media(max-width:900px){
   .hero .wrap{grid-template-columns:1fr}.hero-card{max-width:620px}
@@ -245,6 +260,7 @@ tbody tr:hover{background:#fbfdff}
     <div class="navlinks">
       <button onclick="go('tests')">Practice</button>
       <button onclick="go('skills')">Skills</button>
+      <button onclick="go('writing')">✍️ Writing Studio</button>
       <button onclick="go('library')">Library</button>
       <button onclick="go('authentic')">Authentic English</button>
       <button class="nav-cloud" onclick="openCloudSetup()">⚙ Cloud</button>
@@ -321,6 +337,20 @@ tbody tr:hover{background:#fbfdff}
   </div>
 </section>
 
+
+<section class="section" id="writing">
+  <div class="wrap">
+    <div class="section-head"><div><div class="eyebrow">Writing Studio</div><h2>Plan. Draft. Review. Improve.</h2>
+    <p class="lead">Build exam-ready writing through timed practice, autosaved drafts, multiple attempts and optional AI feedback. Your teacher can add new prompts without changing this webpage.</p></div></div>
+    <div class="writing-intro">
+      <div class="quote-band" style="margin:0;background:linear-gradient(125deg,#123a9c,#0a2472)"><div class="quote-mark">“</div><div><div class="q">Good writing is rewriting. Strong ideas become stronger through deliberate revision.</div><div class="a">— Writing Studio principle</div></div></div>
+      <div class="ai-card"><h3>✨ AI Writing Coach</h3><p>After you submit, add your own Gemini API key to receive an indicative score, targeted feedback, corrected examples and a next-step practice plan.</p><button class="btn gold" onclick="openAIKeyHelp()">🔑 Set up Gemini API key</button></div>
+    </div>
+    <div id="writingStatus" class="notice" style="margin-top:18px"><b>✍️ Writing tasks:</b> loading…</div>
+    <div class="writing-grid" id="writingGrid"></div>
+  </div>
+</section>
+
 <section class="section" id="library">
   <div class="wrap">
     <div class="section-head"><div><div class="eyebrow">Resource Library</div><h2>Build the knowledge behind the score</h2>
@@ -390,6 +420,28 @@ tbody tr:hover{background:#fbfdff}
           <div id="changeTeacherMessage" class="notice hidden" style="margin-top:12px"></div>
         </div>
 
+
+        <div class="writing-admin" id="writingManager">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <div style="margin-right:auto"><div class="eyebrow">Writing Manager</div><h3 style="margin:2px 0;color:var(--navy)">✍️ Manage Writing Tasks</h3></div>
+            <button class="btn secondary" onclick="refreshTeacherWritingTasks()">↻ Refresh tasks</button>
+            <button class="btn secondary" onclick="refreshWritingSubmissions()">📊 Writing attempts</button>
+          </div>
+          <p class="muted">Add or edit prompts here. New tasks are published to the Writing Studio immediately through Supabase.</p>
+          <div class="configgrid">
+            <div><label><b>Title</b></label><input id="wtTitle" placeholder="e.g. Data Description 01"></div>
+            <div><label><b>Category</b></label><select id="wtCategory"><option>Data Description</option><option>Discursive Essay</option></select></div>
+            <div><label><b>Time limit</b></label><input id="wtTime" type="number" min="5" max="180" value="20"></div>
+            <div><label><b>Difficulty</b></label><input id="wtDifficulty" placeholder="e.g. C1–C2 / NEC"></div>
+          </div>
+          <div class="configgrid" style="margin-top:10px"><div><label><b>Optional task image path / URL</b></label><input id="wtImage" placeholder="resources/writing/chart01.png"></div><div><label><b>Word guidance</b></label><input id="wtWords" placeholder="e.g. 180–220 words"></div></div><div style="margin-top:10px"><label><b>Task prompt</b></label><textarea id="wtPrompt" placeholder="Paste the complete task prompt here. For a chart/table task, include the image URL or description if needed."></textarea></div>
+          <div style="margin-top:10px"><label><b>Optional rubric / teacher notes</b></label><input id="wtRubric" placeholder="AI uses this rubric if provided"></div>
+          <div class="setup-actions"><button class="btn primary" onclick="saveWritingTask()">Publish writing task</button><button class="btn secondary" onclick="clearWritingTaskForm()">Clear form</button></div>
+          <div id="writingManagerMessage" class="notice hidden" style="margin-top:12px"></div>
+          <div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>Title</th><th>Category</th><th>Time</th><th>Difficulty</th><th>Status</th><th>Actions</th></tr></thead><tbody id="teacherWritingTasksBody"></tbody></table></div>
+          <div id="writingAttemptsBox" class="hidden" style="margin-top:16px"><h3 style="color:var(--navy)">Writing attempts</h3><div class="tablewrap"><table><thead><tr><th>Student</th><th>Class</th><th>Task</th><th>Category</th><th>Attempt</th><th>Words</th><th>Time</th><th>Submitted</th></tr></thead><tbody id="writingAttemptsBody"></tbody></table></div></div>
+        </div>
+
         <div id="resourceManager" style="margin:22px 0;padding:18px;border:1px solid #d9e2ec;border-radius:17px;background:#fff">
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
             <div style="margin-right:auto"><div class="eyebrow">Library Manager</div><h3 style="margin:2px 0;color:var(--navy)">📚 Manage Resources</h3></div>
@@ -418,6 +470,40 @@ tbody tr:hover{background:#fbfdff}
     </div>
   </div>
 </section>
+
+
+<div id="writingModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="writingModalTitle">
+  <div class="setup-modal writing-modal">
+    <button class="setup-close" onclick="closeWritingTask()">✕ Close</button>
+    <h2 id="writingModalTitle">✍️ Writing Studio</h2>
+    <div class="writing-layout">
+      <aside class="writing-prompt">
+        <div id="writingTaskMeta" class="eyebrow">Writing Task</div>
+        <h3 id="writingTaskTitle">Task</h3>
+        <div class="wstats" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px"><span class="editor-stat" id="writingTaskTime">20 minutes</span><span class="editor-stat" id="writingTaskWords">Word guidance</span><span class="editor-stat" id="writingTaskDifficulty">NEC</span></div>
+        <img id="writingTaskImage" class="hidden" alt="Writing task visual" style="width:100%;max-height:430px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:12px;margin:0 0 14px"><div class="prompt-text" id="writingTaskPrompt"></div>
+        <div class="notice" style="margin-top:14px"><b>Strategy:</b> spend a few minutes planning, write with purpose, then reserve time to review.</div>
+      </aside>
+      <div class="writing-workspace">
+        <label><b>🧠 Planning notes</b> <span class="muted">(private draft notes)</span></label>
+        <textarea id="writingPlan" placeholder="Thesis / overview / key features / main arguments / examples…" oninput="saveWritingDraft()"></textarea>
+        <div class="editor-tools"><span class="editor-stat" id="writingWordCount">0 words</span><span class="editor-stat timer-chip" id="writingTimer">00:00</span><span class="editor-stat" id="writingSaveState">Draft ready</span></div>
+        <label><b>📝 Final response</b></label>
+        <textarea id="writingResponse" placeholder="Write your response here…" oninput="writingInputChanged()"></textarea>
+        <div class="setup-actions"><button class="btn secondary" onclick="saveWritingDraft(true)">💾 Save draft</button><button class="btn secondary" onclick="newWritingAttempt()">↻ Start new attempt</button><button class="btn red" onclick="submitWritingAttempt()">Submit writing</button></div>
+        <div id="writingSubmitMessage" class="notice hidden" style="margin-top:12px"></div>
+        <div class="ai-panel" id="writingAIBox">
+          <h3 style="color:var(--navy);margin-top:0">✨ AI Writing Coach</h3>
+          <p class="muted">AI feedback becomes available after you submit. The score is formative and advisory, not an official NEC grade.</p>
+          <div class="ai-key-row"><input id="geminiKey" type="password" placeholder="Paste your Gemini API key"><button class="btn secondary" onclick="saveGeminiKey()">Save key</button></div>
+          <div class="ai-disclaimer">Your API key is stored only in this browser and is sent directly to Google Gemini when you request feedback. It is not uploaded to Supabase.</div>
+          <div class="setup-actions"><button class="btn gold" id="aiFeedbackBtn" onclick="requestAIFeedback()" disabled>✨ Get AI score & feedback</button><button class="btn secondary" onclick="openAIKeyHelp()">How to get a key</button></div>
+          <div id="aiFeedbackStatus" class="notice hidden"></div><div id="aiFeedbackOutput" class="ai-output hidden"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="cloudSetupModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="cloudSetupTitle">
   <div class="setup-modal">
@@ -502,7 +588,7 @@ async function publishScannedResource(encoded){
   const category=guessResourceCategory(f.name);
   try{
     await rpc('upsert_nec_resource',{p_teacher_code:activeTeacherCode,p_resource_id:null,p_title:title,p_category:category,p_level:'C1–C2',p_description:'Teacher-provided material for NEC preparation.',p_file_url:f.path,p_is_active:true});
-    await refreshTeacherResources();await loadResources();await scanGitHubResources();
+    await refreshTeacherResources();await loadResources();await scanGitHubResources();await refreshTeacherWritingTasks();
   }catch(e){alert('Could not publish resource: '+e.message)}
 }
 
@@ -515,5 +601,41 @@ function editResource(r){editingResourceId=Number(r.id);resTitle.value=r.title||
 async function publishResource(){if(!activeTeacherCode){alert('Unlock the Teacher Dashboard first.');return}const title=resTitle.value.trim(),url=resUrl.value.trim(),msg=document.getElementById('resourceManagerMessage');msg.className='notice';if(!title||!url){msg.classList.add('badnotice');msg.textContent='Resource title and file path are required.';return}try{await rpc('upsert_nec_resource',{p_teacher_code:activeTeacherCode,p_resource_id:editingResourceId,p_title:title,p_category:resCategory.value.trim(),p_level:resLevel.value.trim(),p_description:resDescription.value.trim(),p_file_url:url,p_is_active:true});msg.classList.add('oknotice');msg.textContent=editingResourceId?'Resource updated successfully.':'Resource published successfully.';clearResourceForm();await refreshTeacherResources();await loadResources()}catch(e){msg.classList.add('badnotice');msg.textContent='Could not publish resource: '+e.message}}
 async function removeResource(id){if(!activeTeacherCode||!confirm('Delete this resource from the Resource Library? The file itself will remain on GitHub.'))return;try{await rpc('delete_nec_resource',{p_teacher_code:activeTeacherCode,p_resource_id:Number(id)});await refreshTeacherResources();await loadResources()}catch(e){alert('Could not delete resource: '+e.message)}}
 
-renderTests();loadStudent();checkCloud();loadResources();if(!configured())setTimeout(openCloudSetup,500);
+
+
+/* ==================== WRITING STUDIO ==================== */
+const DEMO_WRITING_TASKS=[
+  {id:'demo-data-01',title:'Data Description 01',category:'Data Description',time_limit_minutes:20,word_guidance:'Teacher to specify',difficulty:'NEC',prompt:'Teacher prompt pending. Use Teacher Dashboard → Manage Writing Tasks to paste the exact Data Description task here.',rubric:'Task fulfilment; overview and selection; organisation; vocabulary; grammar and accuracy',is_demo:true},
+  {id:'demo-essay-01',title:'Discursive Essay 01',category:'Discursive Essay',time_limit_minutes:40,word_guidance:'Teacher to specify',difficulty:'NEC',prompt:'Teacher prompt pending. Use Teacher Dashboard → Manage Writing Tasks to paste the exact Discursive Essay prompt here.',rubric:'Content and argument; organisation and coherence; lexical resource; grammar and accuracy; style and register',is_demo:true}
+];
+let writingTasks=[],currentWritingTask=null,writingTimerHandle=null,writingSecondsLeft=0,writingStartedAt=null,writingSubmitted=false,editingWritingTaskId=null;
+const WGEM='NEC_GEMINI_API_KEY';
+function writingEsc(s){return escHtml(String(s??''))}
+function writingDraftKey(){const st=getStudent();return 'NEC_WRITING_DRAFT_'+(currentWritingTask?.id||'x')+'_'+(st.name||'student')+'_'+(st.cls||'class')}
+async function loadWritingTasks(){const grid=document.getElementById('writingGrid'),st=document.getElementById('writingStatus');if(!grid||!st)return;let rows=[];if(configured()){try{rows=await rpc('list_nec_writing_tasks',{p_join_code:getCloud().join})||[]}catch(e){console.warn('Writing tasks cloud unavailable',e)}}writingTasks=rows.length?rows:DEMO_WRITING_TASKS;st.className='notice '+(rows.length?'oknotice':'');st.innerHTML=rows.length?'<b>✍️ Writing tasks:</b> '+rows.length+' published task'+(rows.length===1?'':'s')+'.':'<b>✍️ Writing preview:</b> Two editable demo slots are shown. Publish your real prompts from Teacher Dashboard.';grid.innerHTML=writingTasks.map(t=>`<div class="writing-card ${t.is_demo?'pending':''}"><div class="wtop"><div class="wicon">${t.category==='Data Description'?'📊':'💬'}</div><span class="badge">${writingEsc(t.category)}</span></div><div class="wmeta">${Number(t.time_limit_minutes)||40} minutes · ${writingEsc(t.difficulty||'NEC')}</div><h3>${writingEsc(t.title)}</h3><p>${writingEsc((t.prompt||'').slice(0,150))}${(t.prompt||'').length>150?'…':''}</p><div class="wstats"><span>⏱ ${Number(t.time_limit_minutes)||40} min</span><span>📝 ${writingEsc(t.word_guidance||'Open word count')}</span><span>↻ Multiple attempts</span></div><button class="btn ${t.category==='Data Description'?'primary':'red'}" onclick='openWritingTask(${JSON.stringify(String(t.id))})'>✍️ Start writing</button></div>`).join('')}
+function getStudent(){return {name:(document.getElementById('studentName')?.value||'').trim(),cls:(document.getElementById('studentClass')?.value||'').trim()}}
+function findWritingTask(id){return writingTasks.find(t=>String(t.id)===String(id))}
+function openWritingTask(id){const st=getStudent();if(!st.name||!st.cls){alert('Please enter and save your full name and class first.');go('tests');return}currentWritingTask=findWritingTask(id);if(!currentWritingTask)return;writingSubmitted=false;document.getElementById('writingModalTitle').textContent='✍️ '+currentWritingTask.title;document.getElementById('writingTaskMeta').textContent=currentWritingTask.category;document.getElementById('writingTaskTitle').textContent=currentWritingTask.title;document.getElementById('writingTaskTime').textContent=(currentWritingTask.time_limit_minutes||40)+' minutes';document.getElementById('writingTaskWords').textContent=currentWritingTask.word_guidance||'Open word count';document.getElementById('writingTaskDifficulty').textContent=currentWritingTask.difficulty||'NEC';document.getElementById('writingTaskPrompt').textContent=currentWritingTask.prompt||'';const wi=document.getElementById('writingTaskImage');if(currentWritingTask.image_url){wi.src=currentWritingTask.image_url;wi.classList.remove('hidden')}else{wi.removeAttribute('src');wi.classList.add('hidden')}document.getElementById('geminiKey').value=localStorage.getItem(WGEM)||'';const saved=localStorage.getItem(writingDraftKey());if(saved){try{const d=JSON.parse(saved);writingPlan.value=d.plan||'';writingResponse.value=d.response||''}catch(e){writingPlan.value='';writingResponse.value=''}}else{writingPlan.value='';writingResponse.value=''}writingInputChanged();document.getElementById('writingSubmitMessage').classList.add('hidden');document.getElementById('aiFeedbackOutput').classList.add('hidden');document.getElementById('aiFeedbackStatus').classList.add('hidden');document.getElementById('aiFeedbackBtn').disabled=true;startWritingTimer();document.getElementById('writingModal').classList.remove('hidden')}
+function closeWritingTask(){if(writingTimerHandle)clearInterval(writingTimerHandle);saveWritingDraft();document.getElementById('writingModal').classList.add('hidden')}
+function startWritingTimer(){if(writingTimerHandle)clearInterval(writingTimerHandle);writingStartedAt=Date.now();writingSecondsLeft=(Number(currentWritingTask?.time_limit_minutes)||40)*60;renderWritingTimer();writingTimerHandle=setInterval(()=>{writingSecondsLeft--;renderWritingTimer();if(writingSecondsLeft<=0){clearInterval(writingTimerHandle);writingTimerHandle=null;const m=document.getElementById('writingSubmitMessage');m.className='notice badnotice';m.textContent='⏰ Time is up. Finish the sentence you are writing, review quickly, then submit.';m.classList.remove('hidden')}},1000)}
+function renderWritingTimer(){const e=document.getElementById('writingTimer');if(!e)return;const v=Math.max(0,writingSecondsLeft),m=Math.floor(v/60),s=v%60;e.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');e.classList.toggle('warn',v<=300&&v>60);e.classList.toggle('danger',v<=60)}
+function writingInputChanged(){const txt=document.getElementById('writingResponse').value.trim(),wc=txt?txt.split(/\s+/).length:0;document.getElementById('writingWordCount').textContent=wc+' word'+(wc===1?'':'s');saveWritingDraft()}
+function saveWritingDraft(show=false){if(!currentWritingTask)return;const d={plan:writingPlan.value,response:writingResponse.value,saved_at:new Date().toISOString()};localStorage.setItem(writingDraftKey(),JSON.stringify(d));document.getElementById('writingSaveState').textContent='Saved '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});if(show){const m=document.getElementById('writingSubmitMessage');m.className='notice oknotice';m.textContent='Draft saved on this device.';m.classList.remove('hidden')}}
+function newWritingAttempt(){if(!currentWritingTask||!confirm('Start a new attempt? Your current draft will be cleared from this device.'))return;localStorage.removeItem(writingDraftKey());writingPlan.value='';writingResponse.value='';writingSubmitted=false;document.getElementById('aiFeedbackBtn').disabled=true;writingInputChanged();startWritingTimer()}
+function makeUuid(){return crypto?.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==='x'?r:(r&3|8);return v.toString(16)})}
+async function submitWritingAttempt(){if(!currentWritingTask)return;const st=getStudent(),text=writingResponse.value.trim(),msg=document.getElementById('writingSubmitMessage');if(currentWritingTask.is_demo){msg.className='notice badnotice';msg.textContent='This is a preview slot. Ask your teacher to publish the real prompt before submitting.';msg.classList.remove('hidden');return}if(text.split(/\s+/).filter(Boolean).length<30){msg.className='notice badnotice';msg.textContent='Your response is too short to submit. Keep writing before you finish the attempt.';msg.classList.remove('hidden');return}const elapsed=Math.max(0,Math.round((Date.now()-writingStartedAt)/1000));const wc=text.split(/\s+/).length;try{if(configured())await rpc('submit_nec_writing_attempt',{p_join_code:getCloud().join,p_task_id:Number(currentWritingTask.id),p_student_name:st.name,p_student_class:st.cls,p_response_text:text,p_word_count:wc,p_elapsed_seconds:elapsed,p_client_submission_id:makeUuid()});writingSubmitted=true;if(writingTimerHandle)clearInterval(writingTimerHandle);msg.className='notice oknotice';msg.textContent='✅ Writing submitted. Your attempt has been recorded. You can now request AI feedback or start another attempt.';msg.classList.remove('hidden');document.getElementById('aiFeedbackBtn').disabled=false;saveWritingDraft()}catch(e){msg.className='notice badnotice';msg.textContent='Could not submit to the cloud: '+e.message;msg.classList.remove('hidden')}}
+function saveGeminiKey(){const k=document.getElementById('geminiKey').value.trim();if(!k){localStorage.removeItem(WGEM);alert('Gemini API key removed from this browser.');return}localStorage.setItem(WGEM,k);alert('Gemini API key saved on this device only.')}
+function openAIKeyHelp(){alert('Gemini API key setup:\n\n1. Open Google AI Studio: https://aistudio.google.com/apikey\n2. Sign in with your Google account.\n3. Create or copy a Gemini API key.\n4. Return to Writing Studio and paste it into the AI Writing Coach box.\n\nNever share your key with classmates or publish it on GitHub.')}
+async function requestAIFeedback(){if(!writingSubmitted){alert('Submit your writing first.');return}const key=(document.getElementById('geminiKey').value.trim()||localStorage.getItem(WGEM)||'');if(!key){openAIKeyHelp();return}const out=document.getElementById('aiFeedbackOutput'),st=document.getElementById('aiFeedbackStatus');st.className='notice';st.textContent='✨ Gemini is reviewing your writing…';st.classList.remove('hidden');out.classList.add('hidden');const task=currentWritingTask;const response=writingResponse.value.trim();const rubric=task.rubric|| (task.category==='Data Description'?'Task fulfilment; overview and selection; organisation; vocabulary; grammar and accuracy':'Content and argument; organisation and coherence; lexical resource; grammar and accuracy; style and register');const prompt=`You are an expert English writing coach for Vietnamese National Excellent Student (NEC) candidates at C1-C2/C2+ level.\n\nTASK CATEGORY: ${task.category}\nTASK TITLE: ${task.title}\nTIME LIMIT: ${task.time_limit_minutes} minutes\nWORD GUIDANCE: ${task.word_guidance||'Not specified'}\nTASK PROMPT:\n${task.prompt}\n\nSTUDENT RESPONSE:\n${response}\n\nPRACTICE RUBRIC:\n${rubric}\n\nGive feedback in ENGLISH. This is formative practice, not an official exam grade. Return:\n1) INDICATIVE SCORE: an overall score /10 plus five concise criterion scores /10.\n2) WHAT WORKED: 3 specific strengths with references to the student's writing.\n3) PRIORITY FIXES: the 3 most important weaknesses.\n4) SENTENCE CLINIC: quote up to 3 short problematic excerpts and provide improved versions with the rule/reason.\n5) VOCABULARY UPGRADE: 5 useful topic-appropriate words/collocations, but do not encourage unnatural over-complexity.\n6) NEXT ATTEMPT PLAN: exactly 3 actions for the student's next practice session.\n7) ONE-WEEK PRACTICE: a short focused plan based on this response.\nDo not rewrite the entire essay. Do not invent factual data that the prompt does not provide.`;try{const parts=[{text:prompt}];if(task.image_url){try{const ir=await fetch(task.image_url);const blob=await ir.blob();if(blob.type.startsWith('image/')){const b64=await new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(String(fr.result).split(',')[1]);fr.onerror=reject;fr.readAsDataURL(blob)});parts.unshift({inlineData:{mimeType:blob.type,data:b64}})}}catch(imgErr){console.warn('Could not attach writing task image to Gemini',imgErr)}}const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{role:'user',parts}],generationConfig:{temperature:.3,maxOutputTokens:2200}})});const data=await r.json();if(!r.ok)throw new Error(data?.error?.message||('HTTP '+r.status));const text=(data.candidates||[]).flatMap(c=>c.content?.parts||[]).map(p=>p.text||'').join('\n').trim();if(!text)throw new Error('Gemini returned no text.');out.textContent=text;out.classList.remove('hidden');st.className='notice oknotice';st.textContent='AI feedback ready. Treat it as a second opinion and revise critically.'}catch(e){st.className='notice badnotice';st.textContent='AI feedback failed: '+e.message+' Check your API key and internet connection.'}}
+
+/* Teacher writing manager */
+let teacherWritingTasks=[];
+async function refreshTeacherWritingTasks(){const body=document.getElementById('teacherWritingTasksBody');if(!body||!activeTeacherCode)return;try{teacherWritingTasks=await rpc('teacher_list_nec_writing_tasks',{p_teacher_code:activeTeacherCode})||[];body.innerHTML=teacherWritingTasks.map(t=>`<tr><td>${writingEsc(t.title)}</td><td>${writingEsc(t.category)}</td><td>${Number(t.time_limit_minutes)||40} min</td><td>${writingEsc(t.difficulty||'')}</td><td>${t.is_active?'Published':'Hidden'}</td><td><button class="btn secondary" style="padding:6px 9px" onclick="editWritingTask(${Number(t.id)})">Edit</button> <button class="btn red" style="padding:6px 9px" onclick="deleteWritingTask(${Number(t.id)})">Delete</button></td></tr>`).join('');if(!teacherWritingTasks.length)body.innerHTML='<tr><td colspan="6">No writing tasks yet.</td></tr>'}catch(e){body.innerHTML='<tr><td colspan="6">Writing manager requires the Writing Studio SQL patch. '+writingEsc(e.message)+'</td></tr>'}}
+function clearWritingTaskForm(){editingWritingTaskId=null;wtTitle.value='';wtCategory.value='Data Description';wtTime.value='20';wtDifficulty.value='';wtPrompt.value='';wtImage.value='';wtWords.value='';wtRubric.value=''}
+function editWritingTask(id){const t=teacherWritingTasks.find(x=>Number(x.id)===Number(id));if(!t)return;editingWritingTaskId=id;wtTitle.value=t.title||'';wtCategory.value=t.category||'Data Description';wtTime.value=t.time_limit_minutes||40;wtDifficulty.value=t.difficulty||'';wtPrompt.value=t.prompt||'';wtImage.value=t.image_url||'';wtWords.value=t.word_guidance||'';wtRubric.value=t.rubric||'';document.getElementById('writingManager').scrollIntoView({behavior:'smooth'})}
+async function saveWritingTask(){if(!activeTeacherCode){alert('Unlock the Teacher Dashboard first.');return}const msg=document.getElementById('writingManagerMessage');if(!wtTitle.value.trim()||!wtPrompt.value.trim()){msg.className='notice badnotice';msg.textContent='Title and task prompt are required.';msg.classList.remove('hidden');return}try{await rpc('upsert_nec_writing_task',{p_teacher_code:activeTeacherCode,p_task_id:editingWritingTaskId,p_title:wtTitle.value.trim(),p_category:wtCategory.value,p_time_limit_minutes:Number(wtTime.value)||40,p_word_guidance:wtWords.value.trim(),p_image_url:wtImage.value.trim(),p_difficulty:wtDifficulty.value.trim(),p_prompt:wtPrompt.value.trim(),p_rubric:wtRubric.value.trim(),p_is_active:true});msg.className='notice oknotice';msg.textContent=editingWritingTaskId?'Writing task updated.':'Writing task published.';msg.classList.remove('hidden');clearWritingTaskForm();await refreshTeacherWritingTasks();await loadWritingTasks()}catch(e){msg.className='notice badnotice';msg.textContent='Could not save writing task: '+e.message;msg.classList.remove('hidden')}}
+async function deleteWritingTask(id){if(!activeTeacherCode||!confirm('Delete this writing task? Existing student attempts will remain in the database.'))return;try{await rpc('delete_nec_writing_task',{p_teacher_code:activeTeacherCode,p_task_id:Number(id)});await refreshTeacherWritingTasks();await loadWritingTasks()}catch(e){alert('Could not delete writing task: '+e.message)}}
+async function refreshWritingSubmissions(){const box=document.getElementById('writingAttemptsBox'),body=document.getElementById('writingAttemptsBody');if(!activeTeacherCode)return;box.classList.remove('hidden');try{const rows=await rpc('teacher_nec_writing_dashboard',{p_teacher_code:activeTeacherCode,p_limit:2000})||[];const counts={};rows.forEach(r=>{const k=(r.student_name||'')+'|'+(r.student_class||'')+'|'+r.task_id;counts[k]=(counts[k]||0)+1});body.innerHTML=rows.map(r=>{const k=(r.student_name||'')+'|'+(r.student_class||'')+'|'+r.task_id;return `<tr><td>${writingEsc(r.student_name)}</td><td>${writingEsc(r.student_class||'')}</td><td>${writingEsc(r.task_title)}</td><td>${writingEsc(r.category)}</td><td>${counts[k]}</td><td>${r.word_count||0}</td><td>${Math.round((r.elapsed_seconds||0)/60)} min</td><td>${new Date(r.submitted_at).toLocaleString()}</td></tr>`}).join('');if(!rows.length)body.innerHTML='<tr><td colspan="8">No writing attempts yet.</td></tr>'}catch(e){body.innerHTML='<tr><td colspan="8">Could not load writing attempts: '+writingEsc(e.message)+'</td></tr>'}}
+
+renderTests();loadStudent();checkCloud();loadResources();loadWritingTasks();if(!configured())setTimeout(openCloudSetup,500);
 </script></body></html>
